@@ -1,12 +1,32 @@
 <template>
-  <div>Transaction Page</div>
+  <div class="d-flex align-items-center">
+    <div>Transaction Page</div>
+    <div v-if="state.requestStatus === 'Loading'" class="spinner-border text-primary mx-1">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
   <div>
     {{ state }}
+  </div>
+  <div class="d-flex">
+    <div>Select project: </div>
+    <div>
+      <select>
+        <option 
+          v-for="project in state.projects" 
+          :key="project.id"
+          @click="selectProject(project.id)"
+        >
+          {{ project.name }}
+        </option>
+      </select>
+    </div>
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
 import { Project } from  '../model'
+import { RequestStatus } from '../misc'
 
 export default defineComponent({
   setup() {
@@ -14,27 +34,36 @@ export default defineComponent({
       selectedProject: null as Project | null,
       projects: [] as Project[],
       projectDetails: null,
-      isLoading: false
+      isLoading: false,
+      requestStatus: 'NotAsked' as RequestStatus
     })
 
     const fetchInitialProject = async () => {
       try {
+        state.requestStatus = 'Loading'
+
         const response = await fetch(`${process.env.VUE_APP_BASE_URL}/projects`)
         const projectsData = (await response.json()) as Project[]
 
         if(projectsData) {
           state.projects = projectsData
+          state.requestStatus = 'Success'
         }
       } catch(e) {
-        
+        state.requestStatus = 'Error'
       }
     }
 
     // Fetch
     fetchInitialProject()
 
+    const selectProject = (id: number) => {
+      console.log('Project id:', id)
+    }
+
     return {
-      state
+      state,
+      selectProject
     }
   },
   // data() {

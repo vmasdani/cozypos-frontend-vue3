@@ -1,12 +1,11 @@
 <template>
   <div class="d-flex align-items-center">
-    <div>Transaction Page</div>
+    <div>
+      <h3>Transactions</h3>
+    </div>
     <div v-if="state.requestStatus === 'Loading'" class="spinner-border text-primary mx-1">
       <span class="sr-only">Loading...</span>
     </div>
-  </div>
-  <div>
-    {{ state }}
   </div>
   <div class="d-flex">
     <div>Select project: </div>
@@ -22,11 +21,57 @@
       </select>
     </div>
   </div>
+  <div>
+    <input 
+      type="text"
+      class="form-control" 
+      v-model="state.searchInput"
+      placeholder="Search containing items..." 
+    />
+  </div>
+  <div v-if="state.projectTransactionsView">
+    Showing <strong>{{ filteredProjectTransactionsView.length }}/{{ state.projectTransactionsView.transactions.length }}</strong> Transactions
+  </div>
+  <div>
+    <ul class="list-group">
+      <li v-for="transactionView in filteredProjectTransactionsView" :key="transactionView.transaction.id" class="list-group-item">
+        <div>
+          <div class="d-flex justify-content-between">
+            <h3
+              :class="comparePriceIsCustomColor(transactionView)"
+            >
+              {{
+                formatIdr(transactionView.transaction.priceIsCustom
+                  ? transactionView.transaction.customPrice
+                  : transactionView.totalPrice
+                ) 
+              }}
+            </h3>
+            <div>{{ transactionView.transaction.cashier }}</div>
+          </div>
+          <div>Orig: {{ formatIdr(transactionView.totalPrice)  }}</div>
+          <div>
+            {{ 
+              transactionView.itemTransactions
+                .map(itemTransaction => `${itemTransaction.item.name} x${itemTransaction.itemTransaction.qty}`)
+                .join(', ')
+            }}
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <!-- <div>
+    <pre>
+{{ filteredProjectTransactionsView }}
+    </pre>
+  </div> -->
 </template>
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'
+import { defineComponent, reactive, computed } from 'vue'
 import { Project } from  '../model'
-import { RequestStatus } from '../misc'
+import { RequestStatus, formatIdr } from '../helpers'
+import { ProjectTransactionsView, TransactionView } from '@/view'
 
 export default defineComponent({
   setup() {
@@ -34,7 +79,9 @@ export default defineComponent({
       selectedProject: null as Project | null,
       projects: [] as Project[],
       projectDetails: null,
+      projectTransactionsView: null as ProjectTransactionsView | null,
       isLoading: false,
+      searchInput: "",
       requestStatus: 'NotAsked' as RequestStatus
     })
 
@@ -59,11 +106,56 @@ export default defineComponent({
 
     const selectProject = (id: number) => {
       console.log('Project id:', id)
+      fetchProjectTransactionsView(id)
     }
+
+    const comparePriceIsCustomColor = (transactionView: TransactionView) => {
+      if(!transactionView.transaction.priceIsCustom) {
+        return 'text-dark'
+      } else {
+        if(transactionView.totalPrice < transactionView.transaction.customPrice) {
+          return 'text-success'
+        } else {
+          return 'text-danger'
+        }
+      }
+    }
+
+    const fetchProjectTransactionsView = async (id: number) => {
+      try {
+        state.requestStatus = "Loading"
+
+        const response = await fetch(`${process.env.VUE_APP_BASE_URL}/projects/${id}/transactions`)
+        const projectTransactionsView = await response.json()
+
+        state.projectTransactionsView = projectTransactionsView
+        state.requestStatus = "Success"
+      } catch(e) {
+        console.log(e);
+        state.requestStatus = "Error"
+      }
+    }
+
+    const filteredProjectTransactionsView = computed(() => state.projectTransactionsView 
+      ? state.projectTransactionsView.transactions
+          .filter(transaction => {
+            return transaction.itemTransactions
+              .map(itemTransaction => itemTransaction.item.name)
+              .flat()
+              .join('')
+              .toLowerCase()
+              .includes(state.searchInput)
+          })
+      : []
+    )
 
     return {
       state,
-      selectProject
+      filteredProjectTransactionsView,
+      // Funcs
+      selectProject,
+      formatIdr,
+      comparePriceIsCustomColor
     }
   },
   // data() {
@@ -212,4 +304,4 @@ export default defineComponent({
     }
   }
 })
-</script>
+</script>c

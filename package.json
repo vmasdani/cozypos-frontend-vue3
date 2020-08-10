@@ -9,6 +9,7 @@
   "dependencies": {
     "bootstrap": "^5.0.0-alpha1",
     "popper.js": "^1.16.1",
+    "tailwindcss": "^1.6.2",
     "vue": "^3.0.0-0",
     "vue-router": "^4.0.0-0"
   },

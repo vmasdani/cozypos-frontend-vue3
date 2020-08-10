@@ -1,21 +1,38 @@
 <template>
-  <div class="d-flex flex-column justify-content-center align-items-center bg-dark" style="height: 100vh; width: 100vw">
-    <div class="text-light">
-      <h1>Login ({{ props.myComponent }}) </h1>
-    </div>
-    <div class="text-light">Login</div>
-    <div>
-      <button 
-        class="btn btn-primary"
-        @click="handleLogin"
-      >
-        Login
-      </button>
-    </div>
+  <div class="bg-gray-700 h-screen flex items-center justify-center">
+    <div class="flex flex-col items-center bg-white rounded-lg p-5">
+      <div class="text-xl font-bold">Cozy PoS</div>
+      <div>
+        <input 
+          class="shadow appearance-none border text-center text-gray-700 rounded w-full p-2 leading-tight my-3 focus:outline-none focus:shadow-outline font-bold" 
+          type="text"
+          placeholder="Username..."
+          @input="changeUsername"
+          :value="state.username"
+        />
+      </div>
+      <div>
+        <input 
+          class="shadow appearance-none border text-center text-gray-700 rounded w-full p-2 leading-tight my-3 focus:outline-none focus:shadow-outline font-bold" 
+          type="password" 
+          placeholder="Password..." 
+          @input="changePassword"
+          :value="state.password"
+        />
+      </div>
+      <div>
+        <button 
+          class="shadow bg-gray-500 text-white hover:bg-gray-600 font-bold p-2 rounded-lg"
+          @click="handleLogin"
+        >
+          Login
+        </button>
+      </div>
+    </div> 
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, reactive } from 'vue'
 export default defineComponent({
   name: 'login',
   props: {
@@ -23,6 +40,20 @@ export default defineComponent({
     myComponent: String
   },
   setup(props, ctx) {
+    const state = reactive({
+      username: "",
+      password: "",
+      apiKey: ""
+    })
+
+    const changeUsername = (e: any) => {
+      state.username = e.target.value.trim()
+    }
+
+    const changePassword = (e: any) => {
+      state.password = e.target.value.trim()
+    }
+
     const handleLogin = () => {
       ctx.emit('pressLogin', 'test')
       props.onLogin('testusername', 'testpassword') 
@@ -30,7 +61,9 @@ export default defineComponent({
 
     return {
       props,
+      state,
       // Funcs
+      changeUsername,
       handleLogin
     }
   }

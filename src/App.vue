@@ -1,53 +1,40 @@
 <template>
   <div>
     <div v-if="state.loggedIn">
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="#">Cozy PoS</a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+      <nav class="flex items-center justify-between flex-wrap bg-gray-700 p-3">
+        <div class="flex items-center flex-shrink-0 text-white mr-6">
+          <a href="#">
+            <span class="font-semibold text-xl tracking-tight">Cozy PoS</span>
+          </a>
+        </div>
+        <div class="block lg:hidden">
+          <button 
+            class="flex items-center px-3 py-2 border rounded text-white border-white-400 hover:text-white hover:border-white"
+            @click="handleToggleExpandNavbar"
+          >
+            <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
           </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
-              <li class="nav-item">
-                <router-link class="nav-link" to="/">Transaction</router-link>
-              </li>
-              <li class="nav-item">
-                <router-link class="nav-link" to="/projects">Project</router-link>
-              </li>
-              <li class="nav-item">
-                <router-link class="nav-link" to="/items">Item</router-link>
-              </li>
-              <!-- <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Home</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
-                  Dropdown
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="#">Something else here</a></li>
-                </ul>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-              </li> -->
-            </ul>
-            <form class="d-flex">
-              <!-- <input class="form-control mr-2" type="search" placeholder="Search" aria-label="Search"> -->
-              <button 
-                class="btn btn-danger"
-                @click="handleLogout"
-              >
-                Logout
-              </button>
-            </form>
+        </div>
+        <div :class="`w-full ${ state.expandNavbar ? 'block' : 'hidden' } flex-grow lg:flex lg:items-center lg:w-auto`">
+          <div class="text-sm lg:flex-grow">
+            <a href="#" class="block mt-4 lg:inline-block lg:mt-0 text-white font-semibold hover:text-white mr-4">
+              Transactions
+            </a>
+            <a href="#/items" class="block mt-4 lg:inline-block lg:mt-0 text-white font-semibold hover:text-white mr-4">
+              Items
+            </a>
+            <a href="#/projects" class="block mt-4 lg:inline-block lg:mt-0 text-white font-semibold hover:text-white mr-4">
+              Projects
+            </a>
+          </div>
+          <div>
+            <button 
+              class="bg-red-600 text-white font-semibold py-1 px-2 text-sm rounded-lg lg:mt-0 mt-4"
+              @click="handleLogout"
+            >
+              Logout
+            </button>
+            <!-- <a href="#" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0">Download</a> -->
           </div>
         </div>
       </nav>
@@ -69,7 +56,8 @@ export default defineComponent({
   setup() {
     const state = reactive({
       loggedIn: false,
-      testProp: `a`
+      testProp: `a`,
+      expandNavbar: false
     })
 
     // const handleIncrementTestProp = () => {
@@ -90,12 +78,17 @@ export default defineComponent({
       console.log('Emit press login!')
     }
 
+    const handleToggleExpandNavbar = () => {
+      state.expandNavbar = !state.expandNavbar
+    }
+
     return {
       state,
       // Funcs
       handleLogin,
       handleLogout,
-      handlePressLogin
+      handlePressLogin,
+      handleToggleExpandNavbar
     }
   }
 });

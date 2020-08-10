@@ -1,16 +1,17 @@
 <template>
   <div class="d-flex align-items-center">
     <div>
-      <h3>Transactions</h3>
+      <div class="font-semibold text-xl my-2 mx-1">Transactions</div>
     </div>
     <div v-if="state.requestStatus === 'Loading'" class="spinner-border text-primary mx-1">
       <span class="sr-only">Loading...</span>
     </div>
   </div>
-  <div class="d-flex">
-    <div>Select project: </div>
-    <div>
-      <select>
+  <div class="flex items-center">
+    <div class="block uppercase tracking-wide text-gray-700 text-xs font-bold mx-1">Select project:{{ " " }}</div>
+    <div class="relative mx-1">
+      <select class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+        <!-- <option>test</option> -->
         <option 
           v-for="project in state.projects" 
           :key="project.id"
@@ -21,10 +22,10 @@
       </select>
     </div>
   </div>
-  <div>
-    <input 
+  <div class="flex">
+    <input
       type="text"
-      class="form-control" 
+      class="flex-grow m-2 shadow border p-2 rounded-lg focus:shadow-outline" 
       v-model="state.searchInput"
       placeholder="Search containing items..." 
     />

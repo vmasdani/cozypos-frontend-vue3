@@ -1,16 +1,13 @@
 <template>
-  <div class="d-flex align-items-center">
-    <div>
-      <div class="font-semibold text-xl my-2 mx-1">Transactions</div>
-    </div>
-    <div v-if="state.requestStatus === 'Loading'" class="spinner-border text-primary mx-1">
-      <span class="sr-only">Loading...</span>
-    </div>
+  <!-- {{ state }} -->
+  <div class="flex items-center">
+    <div class="font-semibold text-xl my-2 mx-1">Transactions</div>
+    <loading-icon v-if="state.requestStatus === 'Loading'" class="ml-2" /> 
   </div>
   <div class="flex items-center">
     <div class="block uppercase tracking-wide text-gray-700 text-xs font-bold mx-1">Select project:{{ " " }}</div>
     <div class="relative mx-1">
-      <select class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+      <select class="block appearance-none w-full bg-gray-200 border border-blue-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
         <!-- <option>test</option> -->
         <option 
           v-for="project in state.projects" 
@@ -25,42 +22,45 @@
   <div class="flex">
     <input
       type="text"
-      class="flex-grow m-2 shadow border p-2 rounded-lg focus:shadow-outline" 
+      class="flex-grow m-2 shadow bg-gray-200 border p-2 rounded-lg focus:shadow-outline" 
       v-model="state.searchInput"
       placeholder="Search containing items..." 
     />
+  </div> 
+  
+  <div class="m-2" v-if="state.projectTransactionsView">
+    Showing <span class="font-bold">{{ filteredProjectTransactionsView.length }}/{{ state.projectTransactionsView.transactions.length }}</span> transactions
   </div>
-  <div v-if="state.projectTransactionsView">
-    Showing <strong>{{ filteredProjectTransactionsView.length }}/{{ state.projectTransactionsView.transactions.length }}</strong> Transactions
-  </div>
-  <div>
-    <ul class="list-group">
-      <li v-for="transactionView in filteredProjectTransactionsView" :key="transactionView.transaction.id" class="list-group-item">
-        <div>
-          <div class="d-flex justify-content-between">
-            <h3
-              :class="comparePriceIsCustomColor(transactionView)"
-            >
-              {{
-                formatIdr(transactionView.transaction.priceIsCustom
-                  ? transactionView.transaction.customPrice
-                  : transactionView.totalPrice
-                ) 
+  <div class="mt-3">
+    <div class="mx-2">
+      <div v-for="transactionView in filteredProjectTransactionsView" :key="transactionView.transaction.id" class="list-group-item">
+        <router-link :to="`/transactions/${transactionView.transaction.id}`">
+          <div class="shadow-lg border-2 border-solid border-blue-200 rounded-lg px-4 py-2">
+            <div class="flex justify-between items-center">
+              <h3
+                :class="`text-2xl font-bold ${comparePriceIsCustomColor(transactionView)}`"
+              >
+                {{
+                  formatIdr(transactionView.transaction.priceIsCustom
+                    ? transactionView.transaction.customPrice
+                    : transactionView.totalPrice
+                  )  
+                }}
+              </h3>
+              <div class="rounded-full shadow-lg text-white bg-gray-600 font-semibold px-2">{{ transactionView.transaction.cashier }}</div>
+            </div>
+            <div class="text-sm font-bold text-gray-800 uppercase">Orig: {{ formatIdr(transactionView.totalPrice)  }}</div>
+            <div class="text-sm font-thin italic">
+              {{ 
+                transactionView.itemTransactions
+                  .map(itemTransaction => `${itemTransaction.item.name} x${itemTransaction.itemTransaction.qty}`)
+                  .join(', ')
               }}
-            </h3>
-            <div>{{ transactionView.transaction.cashier }}</div>
+            </div>
           </div>
-          <div>Orig: {{ formatIdr(transactionView.totalPrice)  }}</div>
-          <div>
-            {{ 
-              transactionView.itemTransactions
-                .map(itemTransaction => `${itemTransaction.item.name} x${itemTransaction.itemTransaction.qty}`)
-                .join(', ')
-            }}
-          </div>
-        </div>
-      </li>
-    </ul>
+        </router-link>
+      </div>
+    </div>
   </div>
   <!-- <div>
     <pre>
@@ -73,8 +73,12 @@ import { defineComponent, reactive, computed } from 'vue'
 import { Project } from  '../model'
 import { RequestStatus, formatIdr } from '../helpers'
 import { ProjectTransactionsView, TransactionView } from '@/view'
+import LoadingIcon from '@/components/icons/LoadingIcon.vue'
 
 export default defineComponent({
+  components: {
+    LoadingIcon
+  },
   setup() {
     const state = reactive({
       selectedProject: null as Project | null,
@@ -112,12 +116,12 @@ export default defineComponent({
 
     const comparePriceIsCustomColor = (transactionView: TransactionView) => {
       if(!transactionView.transaction.priceIsCustom) {
-        return 'text-dark'
+        return ''
       } else {
         if(transactionView.totalPrice < transactionView.transaction.customPrice) {
-          return 'text-success'
+          return 'text-green-500'
         } else {
-          return 'text-danger'
+          return 'text-red-500'
         }
       }
     }

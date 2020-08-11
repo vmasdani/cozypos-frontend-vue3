@@ -4,7 +4,7 @@
       <div class="text-xl font-bold">Cozy PoS</div>
       <div>
         <input 
-          class="shadow appearance-none border text-center text-gray-700 rounded w-full p-2 leading-tight my-3 focus:outline-none focus:shadow-outline font-bold" 
+          class="shadow bg-gray-200 appearance-none border text-center text-gray-700 rounded w-full p-2 leading-tight my-3 focus:outline-none focus:shadow-outline font-bold" 
           type="text"
           placeholder="Username..."
           @input="changeUsername"
@@ -13,7 +13,7 @@
       </div>
       <div>
         <input 
-          class="shadow appearance-none border text-center text-gray-700 rounded w-full p-2 leading-tight my-3 focus:outline-none focus:shadow-outline font-bold" 
+          class="shadow bg-gray-200 appearance-none border text-center text-gray-700 rounded w-full p-2 leading-tight my-3 focus:outline-none focus:shadow-outline font-bold" 
           type="password" 
           placeholder="Password..." 
           @input="changePassword"

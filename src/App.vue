@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="state.loggedIn">
-      <nav class="flex items-center justify-between flex-wrap bg-gray-700 p-3">
+      <nav class="sticky top-0 flex items-center justify-between flex-wrap bg-gray-700 p-3 z-20">
         <div class="flex items-center flex-shrink-0 text-white mr-6">
           <a href="#">
             <span class="font-semibold text-xl tracking-tight">Cozy PoS</span>

@@ -1,8 +1,8 @@
 <template>
   <!-- {{ state }} -->
-  <div class="flex items-center">
-    <div class="font-semibold text-xl my-2 mx-1">Transactions</div>
-    <loading-icon v-if="state.requestStatus === 'Loading'" class="ml-2" /> 
+  <div class="flex items-center m-2">
+    <div class="text-2xl font-semibold">Transactions</div>
+    <loading-icon v-if="state.requestStatus === 'Loading'" class="ml-2 text-2xl " /> 
   </div>
   <div class="flex items-center">
     <div class="block uppercase tracking-wide text-gray-700 text-xs font-bold mx-1">Select project:{{ " " }}</div>
@@ -19,10 +19,13 @@
       </select>
     </div>
   </div>
-  <div class="flex">
+  <div class="flex items-center m-2">
+    <div>
+      <button class="font-semibold bg-blue-600 text-white rounded p-2">New</button>
+    </div>
     <input
       type="text"
-      class="flex-grow m-2 shadow bg-gray-200 border p-2 rounded-lg focus:shadow-outline" 
+      class="w-full ml-2 shadow bg-gray-100 border p-2 rounded-lg focus:shadow-outline" 
       v-model="state.searchInput"
       placeholder="Search containing items..." 
     />

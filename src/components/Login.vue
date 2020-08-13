@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-700 h-screen flex items-center justify-center">
-    <div class="flex flex-col items-center bg-white rounded-lg p-5">
+    <div class="shadow-2xl flex flex-col items-center bg-white rounded-lg p-5">
       <div class="text-xl font-bold">Cozy PoS</div>
       <div>
         <input 

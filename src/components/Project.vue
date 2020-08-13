@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="text-2xl font-semibold m-2">
     Project page
   </div>
   <div>

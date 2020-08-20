@@ -1,7 +1,7 @@
 <template>
   <div class="bg-gray-700 h-screen flex items-center justify-center">
     <div class="shadow-2xl flex flex-col items-center bg-white rounded-lg p-5">
-      <div class="text-xl font-bold">Cozy PoS</div>
+      <div class="text-xl font-bold" @click="handleChangeApiKey">Cozy PoS {{ store.apiKey }}</div>
       <div>
         <input 
           class="shadow bg-gray-200 appearance-none border text-center text-gray-700 rounded w-full p-2 leading-tight my-3 focus:outline-none focus:shadow-outline font-bold" 
@@ -33,6 +33,8 @@
 </template>
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
+import { appState } from '@/App.vue'
+
 export default defineComponent({
   name: 'login',
   props: {
@@ -45,6 +47,8 @@ export default defineComponent({
       password: "",
       apiKey: ""
     })
+    
+    const store = appState
 
     const changeUsername = (e: any) => {
       state.username = e.target.value.trim()
@@ -59,12 +63,18 @@ export default defineComponent({
       props.onLogin('testusername', 'testpassword') 
     }
 
+    const handleChangeApiKey = () => {
+      store.apiKey = ' changed!'
+    }
+
     return {
       props,
       state,
+      store,
       // Funcs
       changeUsername,
-      handleLogin
+      handleLogin,
+      handleChangeApiKey
     }
   }
 })

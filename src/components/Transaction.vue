@@ -5,23 +5,31 @@
     <loading-icon v-if="state.requestStatus === 'Loading'" class="ml-2 text-2xl " /> 
   </div>
   <div class="flex items-center">
-    <div class="block uppercase tracking-wide text-gray-700 text-xs font-bold mx-1">Select project:{{ " " }}</div>
+    <div 
+      class="block uppercase tracking-wide text-gray-700 text-xs font-bold mx-1"
+    >
+      Select project:{{ " " }}
+    </div>
     <div class="relative mx-1">
       <select class="block appearance-none w-full bg-gray-200 border border-blue-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
         <!-- <option>test</option> -->
         <option 
           v-for="project in state.projects" 
           :key="project.id"
-          @click="selectProject(project.id)"
+          @click="selectProject(project)"
         >
           {{ project.name }}
         </option>
       </select>
     </div>
   </div>
-  <div class="flex items-center m-2">
+  <div v-if="state.projectTransactionsView !== null" class="flex items-center m-2">
     <div>
-      <button class="font-semibold bg-blue-600 text-white rounded p-2">New</button>
+      <router-link :to="`/transactions/new?projectId=${state.selectedProject.id}`">
+        <button class="font-semibold bg-blue-600 text-white rounded p-2">
+          New
+        </button>
+      </router-link>
     </div>
     <input
       type="text"
@@ -36,8 +44,12 @@
   </div>
   <div class="mt-3">
     <div class="mx-2">
-      <div v-for="transactionView in filteredProjectTransactionsView" :key="transactionView.transaction.id" class="list-group-item">
-        <router-link :to="`/transactions/${transactionView.transaction.id}`">
+      <div 
+        v-for="transactionView in filteredProjectTransactionsView" 
+        :key="transactionView.transaction.id" 
+        class="list-group-item my-2"
+      >
+        <router-link :to="`/transactions/${transactionView.transaction.id}?projectId=${state.selectedProject.id}`">
           <div class="shadow-lg border-2 border-solid border-blue-200 rounded-lg px-4 py-2">
             <div class="flex justify-between items-center">
               <h3
@@ -77,6 +89,7 @@ import { Project } from  '../model'
 import { RequestStatus, formatIdr } from '../helpers'
 import { ProjectTransactionsView, TransactionView } from '@/view'
 import LoadingIcon from '@/components/icons/LoadingIcon.vue'
+import { appState } from '@/App.vue'
 
 export default defineComponent({
   components: {
@@ -93,11 +106,13 @@ export default defineComponent({
       requestStatus: 'NotAsked' as RequestStatus
     })
 
+    const store = appState
+
     const fetchInitialProject = async () => {
       try {
         state.requestStatus = 'Loading'
 
-        const response = await fetch(`${process.env.VUE_APP_BASE_URL}/projects`)
+        const response = await fetch(`${store.baseUrl}/projects`)
         const projectsData = (await response.json()) as Project[]
 
         if(projectsData) {
@@ -112,9 +127,10 @@ export default defineComponent({
     // Fetch
     fetchInitialProject()
 
-    const selectProject = (id: number) => {
-      console.log('Project id:', id)
-      fetchProjectTransactionsView(id)
+    const selectProject = (project: Project) => {
+      console.log('Project id:', project.id)
+      state.selectedProject = project
+      fetchProjectTransactionsView(project.id)
     }
 
     const comparePriceIsCustomColor = (transactionView: TransactionView) => {
@@ -133,7 +149,7 @@ export default defineComponent({
       try {
         state.requestStatus = "Loading"
 
-        const response = await fetch(`${process.env.VUE_APP_BASE_URL}/projects/${id}/transactions`)
+        const response = await fetch(`${store.baseUrl}/projects/${id}/transactions`)
         const projectTransactionsView = await response.json()
 
         state.projectTransactionsView = projectTransactionsView
@@ -148,11 +164,11 @@ export default defineComponent({
       ? state.projectTransactionsView.transactions
           .filter(transaction => {
             return transaction.itemTransactions
-              .map(itemTransaction => itemTransaction.item.name)
+              .map(itemTransaction => itemTransaction.item.name.toLowerCase())
               .flat()
               .join('')
               .toLowerCase()
-              .includes(state.searchInput)
+              .includes(state.searchInput.toLowerCase())
           })
       : []
     )
@@ -165,151 +181,6 @@ export default defineComponent({
       formatIdr,
       comparePriceIsCustomColor
     }
-  },
-  // data() {
-  //   return {
-  //     selectedProject: null,
-  //     projects: [],
-  //     projectDetails: null,
-  //     isLoading: false
-  //   }
-  // },
-  // created() {
-  //   console.log('transaction created.')
-  //   this.fetchInitialProject()
-  // },
-  // watch: {
-  //   $route(to, from) {
-  //     console.log(to, from)
-  //   }
-  // },
-  methods: {
-    async fetchInitialProject() {
-      try {
-        // Fetch currently available projects
-        this.isLoading = true
-        const projectsResponse = await fetch(`${process.env.VUE_APP_BASE_URL}/projects`, {
-          headers: {
-            'Authorization' : localStorage.getItem('apiKey')
-          }
-        })
-
-        if(projectsResponse.status !== 200) {
-          this.isLoading = false
-          throw "Fetching projects failed"
-        }
-        const projects = await projectsResponse.json()
-        console.log('projects:', projects)
-
-        this.projects = projects.filter(data => data.name !== '')
-
-        let selectedProject = null
-        
-        if(projects.length > 0) {
-          selectedProject = projects[0]
-        }
-
-        this.selectedProject = selectedProject
-        
-        // Fetch projects data with transactions
-        if(selectedProject !== null) {
-          this.fetchProject(selectedProject.id)
-        }
-
-        this.isLoading = false
-
-        // Check route
-        const projectId = this.$route.query.projectid
-        const parsedProjectId = parseInt(projectId)
-
-        if(!isNaN(parsedProjectId)) {
-          const foundProject = projects.find(project => project.id === parsedProjectId)
-
-          if(foundProject !== null)
-            this.selectedProject = foundProject
-        } 
-      }
-      catch(e) {
-        console.log(e)
-      }
-    },
-    setProject(project) {
-      this.selectedProject = project
-      this.$router.push(`/transactions?projectid=${project.id}`)
-      this.fetchProject(project.id)
-    },
-    async fetchProject(id) {
-      try {
-        this.isLoading = true
-        const projectDetailResponse = await fetch(`${process.env.VUE_APP_BASE_URL}/projects/${id}`, {
-          headers: {
-            'Authorization' : localStorage.getItem('apiKey')
-          }
-        })
-        
-        if(projectDetailResponse.status !== 200) {
-          this.isLoading = false
-          throw "Fetching project details failed"
-        }
-
-        const projectDetails = await projectDetailResponse.json()
-        console.log('project details:', projectDetails)
-        
-        if(projectDetails != null) {
-          this.projectDetails = projectDetails
-        } 
-        this.isLoading = false
-      }
-      catch(e) {
-        console.log(e)
-      }
-    },
-    formatCurrency(number) {
-      return new Intl.NumberFormat('de-DE', { style: 'currency',  currency: 'IDR' }).format(number)
-    },
-    checkVariant(type) {
-      switch(type) {
-        case 'sell':
-          return '#4caf50'
-        case 'stock_in':
-          return '#00acc1'
-        case 'auction':
-          return '#ab47bc'
-        case 'movement':
-          return '#f9a825'
-        default:
-          return 'white'
-      }
-    },
-    async downloadReport() {
-      try {
-        const response = await fetch(`${process.env.VUE_APP_BASE_URL}/report?projectid=${this.projectDetails.id}`, {
-          headers: {
-            'Authorization' : localStorage.getItem('apiKey')
-          }  
-        })
-
-        if(response.status !== 200) {
-          throw 'Failed downloading report.'
-        }
-
-        const reportContents = await response.text()
-
-        const blob = new Blob([reportContents], { type: 'text/csv;charset=utf-8' })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `report_${new Date().toISOString()}.csv`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-      }
-      catch(e) {
-        console.log(e)
-      }
-
-      
-    }
   }
 })
-</script>c
+</script>

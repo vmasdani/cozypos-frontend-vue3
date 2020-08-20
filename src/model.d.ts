@@ -1,8 +1,8 @@
 export interface ApiKey {
   id: number,
   apiKey: string,
-  created_at: string,
-  updated_at: string
+  created_at: string | null,
+  updated_at: string | null
 } 
 
 export interface Item {
@@ -12,8 +12,8 @@ export interface Item {
   description: string,
   price: number,
   manufacturingPrice: number,
-  created_at: string,
-  updated_at: string
+  created_at: string | null,
+  updated_at: string | null
 }
 
 export interface Project {
@@ -21,8 +21,8 @@ export interface Project {
   uid: string,
   name: string,
   startDate: string,
-  created_at: string,
-  updated_at: string
+  created_at: string | null,
+  updated_at: string | null
 }
 
 export interface Transaction {
@@ -32,8 +32,8 @@ export interface Transaction {
   priceIsCustom: boolean,
   customPrice: number,
   projectId: number,
-  created_at: string,
-  updated_at: string
+  created_at: string | null,
+  updated_at: string | null
 }
 
 export interface StockIn {
@@ -43,8 +43,8 @@ export interface StockIn {
   itemId: number,
   projectId: number,
   qty: number,
-  created_at: string,
-  updated_at: string
+  created_at: string | null,
+  updated_at: string | null
 }
 
 export interface ItemTransaction {
@@ -53,8 +53,8 @@ export interface ItemTransaction {
   itemId: number,
   transactionId: number,
   qty: number,
-  created_at: string,
-  updated_at: string
+  created_at: string | null,
+  updated_at: string | null
 }
 
 export interface ItemStockIn {
@@ -63,8 +63,8 @@ export interface ItemStockIn {
   itemId: number,
   stockInId: number,
   qty: number,
-  created_at: string,
-  updated_at: string
+  created_at: string | null,
+  updated_at: string | null
 }
 
 export interface ItemProject {
@@ -73,6 +73,6 @@ export interface ItemProject {
   itemId: number,
   projectId: number,
   qty: number,
-  created_at: string,
-  updated_at: string
+  created_at: string | null,
+  updated_at: string | null
 }

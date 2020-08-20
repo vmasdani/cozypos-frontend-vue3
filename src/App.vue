@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="state.loggedIn">
+    <div v-if="store.loggedIn">
       <nav class="sticky top-0 flex items-center justify-between flex-wrap bg-gray-700 p-3 z-20">
         <div class="flex items-center flex-shrink-0 text-white mr-6">
           <a href="#">
@@ -38,7 +38,7 @@
           </div>
         </div>
       </nav>
-      <router-view v-if="state.loggedIn" />
+      <router-view v-if="store.loggedIn" />
     </div>
     <login @pressLogin="handlePressLogin" :onLogin="handleLogin" myComponent="Test Prop" v-else />
   </div>
@@ -47,6 +47,12 @@
 <script lang="ts">
 import { defineComponent, reactive, watch } from 'vue';
 import Login from './components/Login.vue'
+
+export const appState = reactive({
+  apiKey: "testapikey",
+  loggedIn: false,
+  baseUrl: process.env.VUE_APP_BASE_URL
+})
 
 export default defineComponent({
   name: 'App',
@@ -60,18 +66,23 @@ export default defineComponent({
       expandNavbar: false
     })
 
+    const store = appState
+
     // const handleIncrementTestProp = () => {
     //   state.testProp = `${state.testProp}a`
     // }
 
     const handleLogin = (username: string, password: string) => {
       state.testProp = `${state.testProp}a`
-      state.loggedIn = true
+      // state.loggedIn = true
+      appState.loggedIn = true
       console.log('onLogin', username, password)
     }
 
     const handleLogout = () => {
-      state.loggedIn = false
+      // state.loggedIn = false
+      appState.loggedIn = false
+      appState.apiKey = ""
     }
 
     const handlePressLogin = () => {
@@ -84,6 +95,7 @@ export default defineComponent({
 
     return {
       state,
+      store,
       // Funcs
       handleLogin,
       handleLogout,

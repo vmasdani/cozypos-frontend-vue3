@@ -47,6 +47,7 @@
 <script lang="ts">
 import { defineComponent, reactive, watch } from 'vue';
 import Login from './components/Login.vue'
+import vSelect from 'vue-select';
 
 export const appState = reactive({
   apiKey: "testapikey",
@@ -57,7 +58,8 @@ export const appState = reactive({
 export default defineComponent({
   name: 'App',
   components: {
-    Login
+    Login,
+    vSelect
   },
   setup() {
     const state = reactive({

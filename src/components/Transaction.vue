@@ -26,7 +26,7 @@
   <div v-if="state.projectTransactionsView !== null" class="flex items-center m-2">
     <div>
       <router-link :to="`/transactions/new?projectId=${state.selectedProject.id}`">
-        <button class="font-semibold bg-blue-600 text-white rounded p-2">
+        <button class="font-semibold bg-blue-500 text-white rounded-lg p-2">
           New
         </button>
       </router-link>

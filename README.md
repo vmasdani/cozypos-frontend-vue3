@@ -1,5 +1,11 @@
 # cozypos-frontend-vue3
 
+## .env setup
+Create an `.env` file containing the api url/base url
+```
+VUE_APP_BASE_URL=http://localhost:8080
+```
+
 ## Project setup
 ```
 npm install

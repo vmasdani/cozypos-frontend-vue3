@@ -179,7 +179,11 @@ export default defineComponent({
     
     const handleSave = async () => {
       const itemToSave: ItemPostBody =  {
-        item: state.item,
+        item: {
+          ...state.item,
+          created_at: undefined,
+          updated_at: undefined
+        } as Item,
         withInitialStock: state.withInitialStock,
         initialStockQty: state.qty, 
         project: state.selectedProject

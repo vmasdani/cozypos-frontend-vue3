@@ -23,13 +23,25 @@
       <div class="uppercase text-sm font-semibold">Select Project:</div>
       <div class="ml-2">
         <select class="block bg-gray-200 appearance-none p-2 rounded-lg">
-          <option>Test</option>
+          <option
+            v-for="project in state.projects"
+            :key="project.id"
+            @click="handleSelectProject(project)"
+          >
+            {{ project.name }}
+          </option>
         </select>
       </div>
     </div>
     <form>
       <div class="flex m-2">
-        <input class="border-2 border-gray-400 px-2 rounded-lg font-semibold" type="text" placeholder="Qty" />
+        <input 
+          class="border-2 border-gray-400 px-2 rounded-lg font-semibold" 
+          type="number"
+          :value="state.qty"
+          placeholder="Qty..." 
+          @input="handleInputStockInQty"
+        />
         <button 
           type="submit" 
           class="ml-1 font-semibold rounded-lg p-2 bg-blue-500 text-white"
@@ -52,7 +64,7 @@
           <div class="bg-gray-600 px-2 py-1 text-white rounded-full font-semibold">{{ stockInView.stockIn.pic }}</div>
         </div>
         <div>On: {{ new Date(stockInView.stockIn.created_at).toString() }}</div>
-        <div>For project: <span class="font-semibold p-1 rounded-lg bg-orange-700 text-white">{{ stockInView.project.name }}</span></div>
+        <div v-if="stockInView.project">For project: <span class="font-semibold p-1 rounded-lg bg-orange-700 text-white">{{ stockInView.project.name }}</span></div>
       </div>
     </div>
     <!-- <div v-if="state.itemStockInsView != null">
@@ -67,17 +79,23 @@ import { RequestStatus } from '@/helpers'
 import { appState } from '@/App.vue'
 import LoadingIcon from '@/components/icons/LoadingIcon.vue'
 import { ItemStockInsView } from '@/view'
+import { StockInPostBody } from '@/postbody'
+import { Project, StockIn } from '@/model'
+import { initialStockIn } from '@/modelinitials'
 export default defineComponent({
   components: { 
     LoadingIcon
   },
   setup() {
     const router = useRouter()
-    const itemId = router.currentRoute.value.query?.itemId
+    const itemId = router.currentRoute.value.query?.itemId as string
 
     const state = reactive({
       requestStatus: 'NotAsked' as RequestStatus,
-      itemStockInsView: null as ItemStockInsView | null
+      itemStockInsView: null as ItemStockInsView | null,
+      projects: [] as Project[],
+      selectedProject: null as Project | null,
+      qty: 0
     })
      
     const store = appState
@@ -100,12 +118,63 @@ export default defineComponent({
       }
     }
 
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(`${store.baseUrl}/projects`, {
+          headers: {
+            'authorization': store.apiKey
+          }
+        })
+
+        const projects = await response.json() as Project[]
+        state.projects = projects 
+        state.selectedProject = projects.length > 0 ? projects[0] : null
+     
+      } catch(e) {
+        console.log(e)
+      }
+    }
+
     if(itemId) {
       fetchItemStockIns()
     }
+    fetchProjects()
 
-    const handleInsertStockIn = (e: any) => {
+    const handleInsertStockIn = async (e: any) => {
       e.preventDefault()
+      
+      try {
+        state.requestStatus = 'Loading'
+
+        const response = await fetch(`${store.baseUrl}/items/${itemId}/stockinsadd`, {
+          method: 'POST',
+          headers: {
+            'authorization': store.apiKey
+          },
+          body: JSON.stringify({ 
+            ...initialStockIn,
+            qty: state.qty,
+            itemId: isNaN(parseInt(itemId)) ? 0 : parseInt(itemId),
+            projectId: state.selectedProject ? state.selectedProject.id : 0
+          } as StockIn)
+        })
+
+        if (response.status !== 201) throw 'Error adding stockin'
+        
+        state.requestStatus = 'Success'
+        fetchItemStockIns()
+      } catch(e) {
+        console.log(e)
+        state.requestStatus = 'Error'
+      }
+    }
+
+    const handleSelectProject = (project: Project) => {
+      state.selectedProject = project
+    }
+
+    const handleInputStockInQty = (e: any) => {
+      state.qty = isNaN(parseInt(e.target.value)) ? 0 : parseInt(e.target.value)
     }
 
     return {
@@ -113,7 +182,9 @@ export default defineComponent({
       state,
       store,
       // Funcs
-      handleInsertStockIn
+      handleInsertStockIn,
+      handleSelectProject,
+      handleInputStockInQty
     }
   }
 })

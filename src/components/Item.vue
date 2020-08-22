@@ -7,7 +7,7 @@
     <div class="flex items-center m-2">
       <router-link to="/items/new">
         <div>
-          <button class="font-semibold bg-blue-600 text-white rounded p-2">New</button>
+          <button class="font-semibold bg-blue-500 text-white rounded-lg p-2">New</button>
         </div>
       </router-link>
       <input 

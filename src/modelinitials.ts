@@ -1,5 +1,5 @@
-import { Item, Transaction, Project } from "./model";
-import { TransactionView } from './view';
+import { Item, Transaction, Project, ItemTransaction, StockIn } from "./model";
+import { TransactionView, ItemTransactionView } from './view';
 import { makeDateString } from './helpers';
 
 export const initialItem: Item = {
@@ -9,8 +9,8 @@ export const initialItem: Item = {
   description: "",
   price: 0,
   manufacturingPrice: 0,
-  created_at: null,
-  updated_at: null
+  created_at: undefined,
+  updated_at: undefined
 }
 
 export const initialTransaction: Transaction = {
@@ -20,8 +20,8 @@ export const initialTransaction: Transaction = {
   priceIsCustom: false,
   customPrice: 0,
   projectId: 0,
-  created_at: null,
-  updated_at: null
+  created_at: undefined,
+  updated_at: undefined
 }
 
 export const initialProject: Project = {
@@ -29,12 +29,38 @@ export const initialProject: Project = {
   uid: "",
   name: "",
   startDate: makeDateString(new Date()),
-  created_at: null,
-  updated_at: null
+  created_at: undefined,
+  updated_at: undefined
 }
 
 export const initialTransactionView: TransactionView = {
   transaction: { ...initialTransaction },
   itemTransactions: [],
   totalPrice: 0
+}
+
+export const initialItemTransaction: ItemTransaction = {
+  id: 0,
+  uid: "",
+  itemId: 0,
+  transactionId: 0,
+  qty: 0,
+  created_at: undefined,
+  updated_at: undefined
+}
+
+export const initialItemTransactionView: ItemTransactionView = {
+  itemTransaction: {...initialItemTransaction},
+  item: {...initialItem}
+}
+
+export const initialStockIn: StockIn = {
+  id: 0,
+  uid: "",
+  pic: "",
+  itemId: 0,
+  projectId: 0,
+  qty: 0,
+  created_at: undefined,
+  updated_at: undefined
 }

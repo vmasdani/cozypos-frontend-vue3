@@ -2,11 +2,15 @@
   <div>
     <div class="text-xl font-semibold m-2">Project</div>
   </div>
-  <div class="flex m-2">
+  <div class="flex items-center m-2">
     <router-link to="/projects">
       <button class="border-2 border-gray-500 font-semibold p-2 rounded-lg">Back</button>
     </router-link>
     <button @click="handleSave" class="bg-blue-500 text-white font-semibold p-2 rounded-lg ml-2">Save</button>
+    <loading-icon v-if="state.requestStatus === 'Loading'" class="text-2xl" />
+    <div v-if="state.requestStatus === 'Success'" class="font-semibold text-green-600">
+      Success!
+    </div>
   </div>
   <form class="m-2">
     <div class="my-2">
@@ -39,7 +43,12 @@ import { appState } from '@/App.vue'
 import { useRouter } from 'vue-router'
 import { RequestStatus, makeDateString, makeReadableDateString } from '@/helpers'
 import { initialProject } from '@/modelinitials'
+import LoadingIcon from '@/components/icons/LoadingIcon.vue'
+import { Project } from '@/model'
 export default defineComponent({
+  components: {
+    LoadingIcon
+  },
   setup() {
     const router = useRouter()
     const projectId = router.currentRoute.value.params?.id as string
@@ -51,7 +60,7 @@ export default defineComponent({
       requestStatus: 'NotAsked' as RequestStatus
     })
 
-    const fetchProject = async () => {
+    const fetchProject = async (id: string) => {
       try {
         const response = await fetch(`${store.baseUrl}/projects/${projectId}`, {
           headers: {
@@ -66,11 +75,36 @@ export default defineComponent({
     }
 
     if(!isNew) {
-      fetchProject()
+      fetchProject(projectId)
     }
 
-    const handleSave = () => {
-      
+    const handleSave = async () => {
+      try {
+        state.requestStatus = 'Loading'
+
+        const response = await fetch(`${store.baseUrl}/projects`, {
+          method: 'POST',
+          headers: {
+            'authorization': store.apiKey,
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            ...state.project,
+            created_at: undefined,
+            updated_at: undefined
+          } as Project)
+        }) 
+
+        if (response.status !== 201) throw 'Error saving project'
+        const responseData = await response.json() as { id: number };
+
+        state.requestStatus = 'Success'
+        // fetchProject(responseData.id.toString())
+        router.push(`/projects/${responseData.id}`)
+      } catch(e) {
+        console.log(e)
+        state.requestStatus = 'Error'
+      }
     }
 
     const handleChangeProjectName = (e: any) => {

@@ -1,7 +1,10 @@
 <template>
   <div class="bg-gray-700 h-screen flex items-center justify-center">
     <div class="shadow-2xl flex flex-col items-center bg-white rounded-lg p-5">
-      <div class="text-xl font-bold" @click="handleChangeApiKey">Cozy PoS {{ store.apiKey }}</div>
+      <div class="text-xl font-bold" @click="handleChangeApiKey">
+        Cozy PoS 
+        <!-- {{ store.apiKey }} -->
+      </div>
       <div>
         <input 
           class="shadow bg-gray-200 appearance-none border text-center text-gray-700 rounded w-full p-2 leading-tight my-3 focus:outline-none focus:shadow-outline font-bold" 
@@ -58,9 +61,25 @@ export default defineComponent({
       state.password = e.target.value.trim()
     }
 
-    const handleLogin = () => {
-      ctx.emit('pressLogin', 'test')
-      props.onLogin('testusername', 'testpassword') 
+    const handleLogin = async () => {
+      // ctx.emit('pressLogin', 'test')
+      // props.onLogin('testusername', 'testpassword')
+
+      try {
+        const response = await fetch(`${store.baseUrl}/login`, {
+          method: 'POST',
+          body: JSON.stringify({ username: state.username, password: state.password })
+        })
+
+        if (response.status !== 200) throw 'Error logging in'
+        const apiKey = await response.text()
+
+        localStorage.setItem('apiKey', apiKey)
+        store.apiKey = apiKey
+        store.loggedIn = true
+      } catch(e) {
+        console.log(e)
+      }
     }
 
     const handleChangeApiKey = () => {
@@ -73,6 +92,7 @@ export default defineComponent({
       store,
       // Funcs
       changeUsername,
+      changePassword,
       handleLogin,
       handleChangeApiKey
     }
